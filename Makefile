@@ -2,7 +2,7 @@ NAME=tanomail
 VERSION=latest
 
 build:
-	docker build --rm -t $(NAME):$(VERSION) .
+	docker build --rm --build-arg ECCUBE_DBTYPE=sqlite3 -t $(NAME):$(VERSION) .
 
 restart: stop start
 
@@ -12,7 +12,7 @@ start:
 	docker run -d \
         --name $(NAME) \
         -e ECCUBE_DBTYPE="sqlite3" \
-		-p 8080:80 \
+		-p 0.0.0.0:8080:80 \
 		$(NAME):$(VERSION)
 
 #        -v xxx:xxx \

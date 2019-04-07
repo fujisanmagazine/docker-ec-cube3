@@ -3,7 +3,7 @@ FROM php:7.3-apache
 MAINTAINER Antonio Kamiya (kamiya@fujisan.co.jp)
 
 ENV ECCUBE_PATH="/var/www/ec-cube"
-ENV ECCUBE_DBTYPE="sqlite3"
+ARG ECCUBE_DBTYPE="sqlite3"
 
 # envs used inside ec-cube/eccube_install.sh
 ENV ADMIN_MAIL="admin@example.com"
@@ -58,5 +58,5 @@ RUN sed -i -e "s|/var/www/html|${ECCUBE_PATH}/html|g" /etc/apache2/sites-availab
 ## Entry point
 WORKDIR ${ECCUBE_PATH}
 EXPOSE 80
-CMD ./eccube_install.sh ${ECCUBE_DBTYPE}  && apache2-foreground
+CMD apache2-foreground
 
