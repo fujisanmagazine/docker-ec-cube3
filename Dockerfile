@@ -3,7 +3,7 @@ FROM php:7.3-apache
 MAINTAINER Antonio Kamiya (kamiya@fujisan.co.jp)
 
 ENV ECCUBE_PATH="/var/www/ec-cube"
-ENV ECCUBE_DBTYPE="pgsql"
+ENV ECCUBE_DBTYPE="sqlite3"
 
 # envs used inside ec-cube/eccube_install.sh
 ENV ADMIN_MAIL="admin@example.com"
@@ -44,17 +44,19 @@ COPY config/exec_env.sh /var/www/
 ## copy EC-CUBE3
 COPY ec-cube ${ECCUBE_PATH}
 
-## Edit Configs
+## Edit EC-CUBE3 Configs
 RUN sed -i -e '29r /var/www/exec_env.sh' \
-           -e '$a chown -R www-data:www-data ${ECCUBE_PATH}' \
-           ${ECCUBE_PATH}/eccube_install.sh
-RUN sed -i -e "s|/var/www/html|${ECCUBE_PATH}/html|g" /etc/apache2/apache2.conf
+           ${ECCUBE_PATH}/eccube_install.sh \
+        && chmod +x ${ECCUBE_PATH}/eccube_install.sh \
+        && cd ${ECCUBE_PATH} && ./eccube_install.sh ${ECCUBE_DBTYPE} \
+        && chown -R www-data:www-data ${ECCUBE_PATH} \
+        && ls -lt ${ECCUBE_PATH}/
 
-RUN chmod +x ${ECCUBE_PATH}/eccube_install.sh
-RUN ls -lt ${ECCUBE_PATH}/
+## Edit apache2 Configs
+RUN sed -i -e "s|/var/www/html|${ECCUBE_PATH}/html|g" /etc/apache2/sites-available/000-default.conf
 
+## Entry point
 WORKDIR ${ECCUBE_PATH}
 EXPOSE 80
-
 CMD ./eccube_install.sh ${ECCUBE_DBTYPE}  && apache2-foreground
 
